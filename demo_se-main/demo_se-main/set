@@ -1,0 +1,182 @@
+SET-1 – Hospital Management System
+Crisp exam/lab answers. Commands are ready to copy; replace placeholders such as <dockerhub-username>, <commit-hash>, and <resolved-file> with your actual values.
+1. Hospital Management System – Core Answer
+AnswerFunctional users: Patients register/login, book appointments, view medical history, download reports and reset passwords. Doctors view records, approve/change appointments, issue prescriptions and update reports. Admins manage schedules, monitor the system and generate reports. Key non-functional requirements: security, usability and smooth operation under high concurrent load.
+2. Maven / Eclipse – HMS
+a) Clone/import HMS.git clone https://github.com/ssvkotamraju/HMS.git
+cd HMS
+mvn -v
+# Eclipse: File -> Import -> Maven -> Existing Maven Projects -> select HMS -> Finish.
+
+
+b) 'mvn' is not recognized.Reason: Maven is not installed or Maven's bin directory is not in PATH.
+1. Install Maven.
+2. Set MAVEN_HOME to the Maven folder.
+3. Add %MAVEN_HOME%\bin to PATH.
+4. Open a new terminal and run:
+mvn -v
+
+
+c) Dependency resolution errors.Run:
+mvn dependency:tree
+mvn -U clean install
+Check the exact groupId/artifactId/version in pom.xml, repository/network errors, and Java version.
+In Eclipse: right-click project -> Maven -> Update Project -> Force Update.
+Correct invalid coordinates/versions or add the required repository only when necessary.
+
+d) Compilation failure.Run:
+mvn clean install
+Read the FIRST compiler error, note file and line number, inspect the related source/dependency, then fix it.
+Run again with:
+mvn clean install -e
+# For full diagnostics:
+mvn clean install -X
+
+e) Java-version mismatch.mvn -v
+java -version
+Check pom.xml compiler source/target.
+Set them to the installed JDK, for example:
+<properties>
+  <maven.compiler.source>8</maven.compiler.source>
+  <maven.compiler.target>8</maven.compiler.target>
+</properties>
+Then set Eclipse Project JRE to the same JDK and run:
+mvn clean install
+
+f) Temporarily skip tests.mvn clean package -DskipTests
+# Or skip test compilation and execution:
+mvn clean package -Dmaven.test.skip=true
+Risk: broken tests may hide defects; do this only temporarily and run the tests later.
+
+g) Resolve dependency conflict.mvn dependency:tree
+Find the library appearing with multiple versions. Prefer one compatible version by declaring it directly in pom.xml, or exclude the unwanted transitive dependency:
+<exclusions>
+  <exclusion>
+    <groupId>...</groupId>
+    <artifactId>...</artifactId>
+  </exclusion>
+</exclusions>
+Then run mvn clean install.
+
+
+h) Troubleshoot unexpected behavior after pom.xml change.git diff pom.xml
+mvn dependency:tree
+mvn help:effective-pom
+mvn clean package
+Compare old/new dependency versions, scopes and exclusions. Revert the POM change if it is the cause.
+i) BUILD SUCCESS but browser fails.Check:
+1. Server/container is actually running.
+2. Correct port and context path.
+3. WAR is present in target/ and deployed.
+4. Server logs for startup/deployment errors.
+5. Browser URL and application mappings.
+6. Port 8080 is free/in use.
+Use:
+mvn tomcat7:run
+
+# or the configured server in Eclipse.
+j) Build plugin cannot be found/executed.Inspect pom.xml:
+- <build>
+- <plugins>
+- <pluginManagement>
+- plugin <groupId>, <artifactId>, <version>
+- plugin configuration/goals
+Also check Maven/JDK version and repository/network settings before changing source code.
+
+
+3. Git – HMS
+a) Initialize Git and first commit.cd <HMS-folder>
+git init
+git add .
+git commit -m "Initial commit"
+
+
+b) Add mobile number/password-validation feature safely.git status
+git switch -c feature/registration-validation
+# edit register.jsp and related files
+git diff
+git add register.jsp <other-files>
+git commit -m "Add mobile number and improve password validation"
+git switch main
+git pull origin main
+git switch feature/registration-validation
+git rebase main
+# resolve conflicts if any, then:
+git push -u origin feature/registration-validation
+
+
+c) Inspect unwanted register.jsp changes.git diff register.jsp
+# Shows unstaged line-by-line changes: '-' removed, '+' added.
+
+
+d) Stage register.jsp and new CSS file.git status
+git add register.jsp <new-style.css>
+git status
+git commit -m "Update registration form styling and validation"
+
+
+e) Undo a bad committed change while preserving history.git revert <bad-commit-hash>
+git push origin <branch>
+# Creates a new commit that reverses the bad commit.
+
+
+f) Unstage a configuration file but keep it locally.git restore --staged <config-file>
+# Older equivalent: git reset HEAD <config-file>
+
+g) Pause unfinished work and move to urgent branch.git stash push -m "WIP register.jsp"
+git switch <urgent-branch>
+
+# After emergency work:
+git switch <previous-branch>
+git stash pop
+
+h) Keep a clean feature history when main has new commits.git fetch origin
+git switch feature/<name>
+git rebase origin/main
+# Resolve conflicts if needed:
+git add <resolved-files>
+git rebase --continue
+git push --force-with-lease origin feature/<name>
+
+
+i) Recover a lost commit.git reflog
+git branch recovery <lost-commit-hash>
+git switch recovery
+# If required, cherry-pick the recovered commit into the working branch.
+
+
+j) Configure remote and push HMS to GitHub.git remote add origin <GitHub-URL>
+git remote -v
+git branch -M main
+git add .
+git commit -m "Add HMS changes"
+git push -u origin main
+
+
+4. Docker – HMS
+Initial Docker commands.# Dockerfile
+FROM openjdk:17-jdk-slim
+WORKDIR /app
+COPY target/HMS.jar app.jar
+EXPOSE 8080
+ENTRYPOINT ["java","-jar","app.jar"]
+
+docker build -t HMS .
+docker run -d --name hms-container -p 8080:8080 HMS
+
+a) Consistent environment.Docker packages the application with a fixed runtime, libraries, configuration and startup command. The same image can be run by all developers, avoiding differences in Java/server setup.
+
+b) Important Dockerfile instructions.FROM, WORKDIR, COPY/ADD, RUN, ENV when needed, EXPOSE, and ENTRYPOINT/CMD. For a Java application, COPY the built JAR/WAR and define the command that starts it.
+
+c) docker build fails.docker build -t HMS .
+
+Check the FIRST error in the build output, verify Dockerfile syntax, file names/paths, build context, base image availability and permissions. Rebuild after correction.
+d) Container port 8080 not reachable.docker run -d --name hms-container -p 8080:8080 HMS
+# Verify:
+docker ps
+docker logs hms-container
+# Host 8080 -> container 8080.
+
+e) Tag and push to Docker Hub.docker tag HMS <dockerhub-username>/HMS:v1
+docker login
+docker push <dockerhub-username>/HMS:v1
