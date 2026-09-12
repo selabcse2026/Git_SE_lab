@@ -1,0 +1,615 @@
+SOFTWARE ENGINEERING LAB
+ECLIPSE + MAVEN + TOMCAT + LOCALHOST
+QUICK COMMAND SHEET
+========================================
+
+1. ECLIPSE – MAVEN PROJECT
+---------------------------
+Import Maven project:
+Eclipse
+→ File
+→ Import
+→ Maven
+→ Existing Maven Projects
+→ Select project folder
+→ Select pom.xml
+→ Finish
+
+Alternative:
+File → Import → Git → Projects from Git → Clone URI
+
+After importing:
+Right-click project → Maven → Update Project
+(or Alt+F5)
+
+Open:
+pom.xml
+
+
+2. MAVEN BASIC COMMANDS
+-----------------------
+Check Maven + Java:
+mvn -v
+
+Check Java:
+java --version
+
+Validate POM:
+mvn validate
+
+Clean old build:
+mvn clean
+
+Compile:
+mvn compile
+
+Run tests:
+mvn test
+
+Create JAR/WAR:
+mvn package
+
+MOST IMPORTANT:
+mvn clean package
+
+Build with debug information:
+mvn clean package -X
+
+Skip test execution:
+mvn package -DskipTests
+
+Force dependency update:
+mvn -U clean package
+
+Show dependency tree:
+mvn dependency:tree
+
+Analyze dependencies:
+mvn dependency:analyze
+
+Install artifact to local .m2:
+mvn install
+
+Deploy artifact:
+mvn deploy
+
+
+3. MAVEN BUILD FLOW
+-------------------
+pom.xml
+   ↓
+mvn validate
+   ↓
+mvn compile
+   ↓
+mvn test
+   ↓
+mvn package
+   ↓
+target/
+   ↓
+.jar or .war
+
+
+4. IMPORTANT POM ITEMS
+----------------------
+groupId       → project/organization identifier
+artifactId    → project name
+version       → project version
+packaging     → jar / war
+dependencies  → libraries required by project
+plugins       → Maven build tools
+finalName     → output JAR/WAR filename
+
+Example:
+<packaging>war</packaging>
+<finalName>OnlineShoppingApp</finalName>
+
+Output:
+target/OnlineShoppingApp.war
+
+
+5. TOMCAT – WINDOWS
+-------------------
+Tomcat folder used in lab:
+
+C:\Users\THADHAGATH RAM AITHA\apache-tomcat-9.0.121-windows-x64\apache-tomcat-9.0.121
+
+BIN folder:
+C:\Users\THADHAGATH RAM AITHA\apache-tomcat-9.0.121-windows-x64\apache-tomcat-9.0.121\bin
+
+Set Java in CMD:
+set "JAVA_HOME=C:\Program Files\Java\jdk-26.0.1"
+
+Go to Tomcat bin:
+cd "C:\Users\THADHAGATH RAM AITHA\apache-tomcat-9.0.121-windows-x64\apache-tomcat-9.0.121\bin"
+
+Start Tomcat:
+startup.bat
+
+Stop Tomcat:
+shutdown.bat
+
+
+6. DEPLOY WAR TO TOMCAT
+-----------------------
+After:
+mvn clean package
+
+Find:
+project\target\project.war
+
+Copy the .war file into:
+Tomcat\webapps\
+
+Example:
+target\OnlineShoppingApp.war
+        ↓
+Tomcat\webapps\OnlineShoppingApp.war
+
+Tomcat automatically extracts it to:
+Tomcat\webapps\OnlineShoppingApp\
+
+
+7. LOCALHOST LINKS
+------------------
+Tomcat default port:
+8080
+
+If WAR = OnlineShoppingApp.war:
+http://localhost:8080/OnlineShoppingApp/
+
+If WAR = SportsTournament.war:
+http://localhost:8080/SportsTournament/
+
+GENERAL RULE:
+http://localhost:8080/<WAR-NAME-WITHOUT-.war>/
+
+
+8. IF LOCALHOST DOES NOT OPEN
+-----------------------------
+Check Tomcat is running.
+
+Check port 8080:
+netstat -ano | findstr :8080
+
+Check Tomcat logs:
+Tomcat\logs\
+
+Check WAR:
+Tomcat\webapps\
+
+Check extracted folder:
+Tomcat\webapps\OnlineShoppingApp\
+
+If needed:
+shutdown.bat
+then
+startup.bat
+
+
+9. EXAM MASTER FLOW ⭐
+----------------------
+git clone <URL>
+cd <project>
+
+mvn -v
+mvn validate
+mvn dependency:tree
+mvn clean package
+
+        ↓
+Check target/
+        ↓
+Find .war
+        ↓
+Copy .war → Tomcat\webapps\
+        ↓
+startup.bat
+        ↓
+Open browser
+        ↓
+http://localhost:8080/<project-name>/
+
+
+10. QUICK ERROR → COMMAND
+-------------------------
+POM error:
+mvn validate
+
+Dependency error:
+mvn dependency:tree
+
+Java version problem:
+mvn -v
+java --version
+
+Need fresh dependencies:
+mvn -U clean package
+
+Need detailed logs:
+mvn clean package -X
+
+Tests failing but package required:
+mvn package -DskipTests
+
+Need clean build:
+mvn clean package
+
+
+REMEMBER:
+Maven BUILD SUCCESS ≠ Web application running.
+
+For a WAR application:
+Maven builds the WAR.
+Tomcat runs/deploys the WAR.
+Browser opens localhost:8080/<context-path>.
+
+
+11. UNIVERSAL POM TEMPLATE – COPY/PASTE
+---------------------------------------
+Use this as a BASE TEMPLATE. Keep only the dependencies/plugins required by
+the actual project. Do not blindly add every library if the question gives
+different versions or coordinates.
+
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0
+         https://maven.apache.org/xsd/maven-4.0.0.xsd">
+
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>com.example</groupId>
+    <artifactId>MyProject</artifactId>
+    <version>1.0-SNAPSHOT</version>
+    <packaging>war</packaging>
+
+    <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <maven.compiler.source>8</maven.compiler.source>
+        <maven.compiler.target>8</maven.compiler.target>
+    </properties>
+
+    <dependencies>
+
+        <!-- JUnit 4 - testing -->
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <version>4.13.2</version>
+            <scope>test</scope>
+        </dependency>
+
+        <!-- Servlet API - supplied by Tomcat -->
+        <dependency>
+            <groupId>javax.servlet</groupId>
+            <artifactId>javax.servlet-api</artifactId>
+            <version>4.0.1</version>
+            <scope>provided</scope>
+        </dependency>
+
+        <!-- MySQL JDBC Driver -->
+        <dependency>
+            <groupId>com.mysql</groupId>
+            <artifactId>mysql-connector-j</artifactId>
+            <version>8.0.33</version>
+        </dependency>
+
+    </dependencies>
+
+    <build>
+        <finalName>MyProject</finalName>
+
+        <plugins>
+
+            <!-- Compile Java source -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.13.0</version>
+            </plugin>
+
+            <!-- Run JUnit tests -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <version>3.3.0</version>
+            </plugin>
+
+            <!-- Build WAR -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-war-plugin</artifactId>
+                <version>3.4.0</version>
+            </plugin>
+
+            <!-- Clean target/ -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-clean-plugin</artifactId>
+                <version>3.4.0</version>
+            </plugin>
+
+            <!-- Copy/process resources -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-resources-plugin</artifactId>
+                <version>3.3.1</version>
+            </plugin>
+
+        </plugins>
+    </build>
+
+</project>
+
+
+12. COMMON DEPENDENCY BLOCKS
+----------------------------
+
+A) JUnit 4:
+<dependency>
+    <groupId>junit</groupId>
+    <artifactId>junit</artifactId>
+    <version>4.13.2</version>
+    <scope>test</scope>
+</dependency>
+
+B) Servlet API:
+<dependency>
+    <groupId>javax.servlet</groupId>
+    <artifactId>javax.servlet-api</artifactId>
+    <version>4.0.1</version>
+    <scope>provided</scope>
+</dependency>
+
+C) MySQL:
+<dependency>
+    <groupId>com.mysql</groupId>
+    <artifactId>mysql-connector-j</artifactId>
+    <version>8.0.33</version>
+</dependency>
+
+IMPORTANT:
+If the exam gives a specific dependency/version, USE THE QUESTION'S
+coordinates/version instead of this generic block.
+
+
+13. COMMON MAVEN PLUGIN BLOCKS
+------------------------------
+
+A) Compiler:
+<plugin>
+    <groupId>org.apache.maven.plugins</groupId>
+    <artifactId>maven-compiler-plugin</artifactId>
+    <version>3.13.0</version>
+</plugin>
+
+B) Surefire:
+<plugin>
+    <groupId>org.apache.maven.plugins</groupId>
+    <artifactId>maven-surefire-plugin</artifactId>
+    <version>3.3.0</version>
+</plugin>
+
+C) WAR:
+<plugin>
+    <groupId>org.apache.maven.plugins</groupId>
+    <artifactId>maven-war-plugin</artifactId>
+    <version>3.4.0</version>
+</plugin>
+
+D) Clean:
+<plugin>
+    <groupId>org.apache.maven.plugins</groupId>
+    <artifactId>maven-clean-plugin</artifactId>
+    <version>3.4.0</version>
+</plugin>
+
+E) Resources:
+<plugin>
+    <groupId>org.apache.maven.plugins</groupId>
+    <artifactId>maven-resources-plugin</artifactId>
+    <version>3.3.1</version>
+</plugin>
+
+
+14. JAR PROJECT TEMPLATE
+------------------------
+For a normal standalone Java application, change:
+
+<packaging>war</packaging>
+
+to:
+
+<packaging>jar</packaging>
+
+And change:
+
+<finalName>MyProject</finalName>
+
+to the required artifact name.
+
+Output:
+target/MyProject.jar
+
+
+15. TOMCAT MAVEN PLUGIN – IF THE QUESTION ASKS
+----------------------------------------------
+<plugin>
+    <groupId>org.apache.tomcat.maven</groupId>
+    <artifactId>tomcat7-maven-plugin</artifactId>
+    <version>2.2</version>
+    <configuration>
+        <path>/MyProject</path>
+        <port>8080</port>
+    </configuration>
+</plugin>
+
+Run:
+mvn tomcat7:run
+
+Browser:
+http://localhost:8080/MyProject
+
+
+16. CUSTOM JAR – COPY/PASTE PATTERN
+------------------------------------
+mvn install:install-file ^
+-Dfile=library.jar ^
+-DgroupId=com.example ^
+-DartifactId=library ^
+-Dversion=1.0.0 ^
+-Dpackaging=jar
+
+Then add it to pom.xml:
+
+<dependency>
+    <groupId>com.example</groupId>
+    <artifactId>library</artifactId>
+    <version>1.0.0</version>
+</dependency>
+
+
+17. MAVEN REPOSITORY COMMANDS
+-----------------------------
+Show dependencies:
+mvn dependency:tree
+
+Analyze dependencies:
+mvn dependency:analyze
+
+Resolve/update dependencies:
+mvn -U dependency:resolve
+
+Force update + build:
+mvn -U clean package
+
+
+18. EXAM POM ERROR CHECKLIST
+----------------------------
+If pom.xml is given with an error, check:
+
+[ ] <modelVersion> exists
+[ ] groupId
+[ ] artifactId (NOT "artificatId")
+[ ] version
+[ ] packaging: jar/war
+[ ] dependency groupId
+[ ] dependency artifactId
+[ ] dependency version
+[ ] correct scope
+[ ] compiler source/target
+[ ] plugin artifactId
+[ ] plugin version
+[ ] finalName
+[ ] closing XML tags
+
+
+19. UNIVERSAL BUILD COMMAND SEQUENCE
+------------------------------------
+mvn -v
+mvn validate
+mvn dependency:tree
+mvn clean
+mvn compile
+mvn test
+mvn package
+
+OR FAST:
+mvn clean package
+
+IF TESTS FAIL BUT PACKAGE IS REQUIRED:
+mvn clean package -DskipTests
+
+IF DEPENDENCIES ARE NOT REFRESHING:
+mvn -U clean package
+
+IF YOU NEED FULL DEBUG:
+mvn clean package -X
+
+
+20. WHAT TO COPY-PASTE DEPENDING ON QUESTION
+---------------------------------------------
+"Validate project"
+→ mvn validate
+
+"Clean and build"
+→ mvn clean package
+
+"Compile"
+→ mvn compile
+
+"Run tests"
+→ mvn test
+
+"Package WAR/JAR"
+→ mvn package
+
+"Skip tests and package"
+→ mvn package -DskipTests
+
+"Show dependency hierarchy"
+→ mvn dependency:tree
+
+"Find unused dependencies"
+→ mvn dependency:analyze
+
+"Force dependency refresh"
+→ mvn -U clean package
+
+"Detailed Maven error"
+→ mvn clean package -X
+
+"Install third-party JAR"
+→ mvn install:install-file ...
+
+"Run Tomcat Maven plugin"
+→ mvn tomcat7:run
+
+
+21. FINAL EXAM COPY-PASTE FLOW
+------------------------------
+git clone <URL>
+cd <PROJECT>
+
+mvn -v
+mvn validate
+mvn dependency:tree
+mvn clean package
+
+Check:
+target\<artifact>.war
+
+Copy WAR to:
+Tomcat\webapps\
+
+Start:
+set "JAVA_HOME=C:\Program Files\Java\jdk-26.0.1"
+cd "C:\Users\THADHAGATH RAM AITHA\apache-tomcat-9.0.121-windows-x64\apache-tomcat-9.0.121\bin"
+startup.bat
+
+Open:
+http://localhost:8080/<WAR-NAME-WITHOUT-.war>/
+
+STOP:
+shutdown.bat
+
+
+22. GOLDEN RULE ⭐⭐⭐
+---------------------
+Do NOT replace the entire pom.xml with the universal template if the
+exam gives an existing project.
+
+Usually:
+1. Open the supplied pom.xml.
+2. Identify the broken/missing part.
+3. Fix ONLY what the question asks.
+4. Save.
+5. Run mvn clean package.
+6. Check target/.
+7. Deploy WAR to Tomcat if required.
+
+If the question explicitly asks you to create a pom.xml from scratch,
+then use the template above and change:
+groupId, artifactId, version, packaging, finalName, dependencies and
+plugins according to the scenario.
